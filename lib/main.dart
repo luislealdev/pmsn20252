@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:pmsn20252/screens/home_screen.dart';
 // import 'package:pmsn20252/screens/home_screen.dart';
 import 'package:pmsn20252/screens/login_screen.dart';
+import 'package:pmsn20252/utils/theme_app.dart';
+import 'package:pmsn20252/utils/value_listener.dart';
 // import 'package:pmsn20252/utils/colors_app.dart';
 
 void main() => runApp(MyApp());
@@ -18,13 +20,19 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      routes: {
-        '/login': (context) => const LoginScreen(),
-        '/home': (context) => const HomeScreen(),
+    return ValueListenableBuilder(
+      valueListenable: ValueListener.isDark,
+      builder: (context, value, _) {
+        return MaterialApp(
+          theme: value ? ThemeApp.darkTheme() : ThemeApp.lightTheme(),
+          routes: {
+            '/login': (context) => const LoginScreen(),
+            '/home': (context) => const HomeScreen(),
+          },
+          debugShowCheckedModeBanner: false,
+          home: LoginScreen(),
+        );
       },
-      debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
     );
   }
 }

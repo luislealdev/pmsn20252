@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
+import 'package:pmsn20252/utils/value_listener.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -58,10 +59,31 @@ class _HomeScreenState extends State<HomeScreen>
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Home'),
+        title: const Text('GoogleApp'),
         backgroundColor: colors[currentPage],
         foregroundColor: unselectedColor,
         elevation: 0,
+        actions: [
+          ValueListenableBuilder(
+            valueListenable: ValueListener.isDark,
+            builder: (context, value, _) {
+              return value
+                  ? IconButton(
+                    icon: Icon(Icons.wb_sunny),
+                    onPressed: () {
+                      ValueListener.isDark.value = false;
+                    },
+                  )
+                  : IconButton(
+                    icon: Icon(Icons.nightlight),
+                    onPressed: () {
+                      ValueListener.isDark.value = true;
+                    },
+                  );
+            },
+          ),
+        ],
+        // leading: Container(),
       ),
       body: BottomBar(
         fit: StackFit.expand,

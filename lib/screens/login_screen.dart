@@ -56,9 +56,10 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     return Scaffold(
+      // endDrawer: Drawer(),
       body: Container(
         height:
-            MediaQuery.of(context).size.height, //Hacer responsiva la pantalla
+            MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -122,7 +123,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           isValidating = true;
                           setState(() {});
                           Future.delayed(Duration(seconds: 3)).then(
-                            (value) => Navigator.pushNamed(context, '/home'),
+                            (value) => Navigator.pushReplacementNamed(
+                              context,
+                              '/home',
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(
