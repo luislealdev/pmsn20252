@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
 import 'package:pmsn20252/utils/value_listener.dart';
+import 'package:pmsn20252/widgets/attribute_widget.dart';
+import 'dart:math';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -14,6 +16,8 @@ class _HomeScreenState extends State<HomeScreen>
     with SingleTickerProviderStateMixin {
   late int currentPage;
   late TabController tabController;
+  double rotationY = 0.0; // Variable para controlar la rotación
+
   final List<Color> colors = [
     Colors.blue,
     Colors.green,
@@ -129,7 +133,9 @@ class _HomeScreenState extends State<HomeScreen>
                 _buildPageContent(controller, 0, "Inicio", Icons.home),
                 _buildPageContent(controller, 1, "Buscar", Icons.search),
                 _buildPageContent(controller, 2, "Agregar", Icons.add),
-                _buildPageContent(controller, 3, "Favoritos", Icons.favorite),
+                _buildFavoritesPage(
+                  controller,
+                ), // Página especial para Favoritos
                 _buildPageContent(
                   controller,
                   4,
@@ -198,6 +204,161 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // Página especial para Favoritos con transformaciones 3D
+  Widget _buildFavoritesPage(ScrollController controller) {
+    final double rowHeight = 220.0;
+
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [colors[3], colors[4], Colors.white],
+          stops: [0.0, 0.5, 1.0],
+        ),
+      ),
+      child: ListView(
+        controller: controller,
+        padding: EdgeInsets.all(16),
+        children: [
+          SizedBox(height: 40),
+
+          // Nuevo componente Stack
+          Container(
+            height: rowHeight,
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Transform.translate(
+                  offset: Offset(-10, 0),
+                  child: Transform(
+                    alignment: FractionalOffset.center,
+                    transform:
+                        Matrix4.identity()
+                          ..setEntry(3, 2, 0.01)
+                          ..rotateY(1.5 * pi / 180),
+                    child: Container(
+                      height: 216,
+                      margin: EdgeInsets.symmetric(horizontal: 40),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.1),
+                        borderRadius: BorderRadius.all(Radius.circular(22)),
+                      ),
+                    ),
+                  ),
+                ),
+                Transform.translate(
+                  offset: Offset(-44, 0),
+                  child: Transform(
+                    alignment: FractionalOffset.center,
+                    transform:
+                        Matrix4.identity()
+                          ..setEntry(3, 2, 0.01)
+                          ..rotateY(8 * pi / 180),
+                    child: Container(
+                      height: 188,
+                      margin: EdgeInsets.symmetric(horizontal: 40),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.4),
+                        borderRadius: BorderRadius.all(Radius.circular(22)),
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Transform.translate(
+                    offset: Offset(-30, 0),
+                    child: Container(
+                      child: Image.network(
+                        'https://flutter4fun.com/wp-content/uploads/2020/11/Player-1.png',
+                        width: rowHeight,
+                        height: rowHeight,
+                      ),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Container(
+                    margin: EdgeInsets.only(right: 58),
+                    // padding: EdgeInsets.symmetric(vertical: 34),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        AttributeWidget(
+                          progress: 75,
+                          child: Image.network(
+                            'https://flutter4fun.com/wp-content/uploads/2020/11/speed.png',
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.speed,
+                                color: Colors.white,
+                                size: 20,
+                              );
+                            },
+                          ),
+                        ),
+                        AttributeWidget(
+                          progress: 60,
+                          child: Image.network(
+                            'https://flutter4fun.com/wp-content/uploads/2020/11/heart.png',
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.favorite,
+                                color: Colors.white,
+                                size: 20,
+                              );
+                            },
+                          ),
+                        ),
+                        AttributeWidget(
+                          progress: 85,
+                          child: Image.network(
+                            'https://flutter4fun.com/wp-content/uploads/2020/11/knife.png',
+                            errorBuilder: (context, error, stackTrace) {
+                              return Icon(
+                                Icons.flash_on,
+                                color: Colors.white,
+                                size: 20,
+                              );
+                            },
+                          ),
+                        ),
+                        SizedBox(
+                          height: 32,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              side: BorderSide(color: Colors.white, width: 1),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30.0),
+                              ),
+                            ),
+                            child: Text(
+                              'See Details',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
