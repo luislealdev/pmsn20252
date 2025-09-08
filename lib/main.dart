@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pmsn20252/screens/home_screen.dart';
+import 'package:pmsn20252/screens/iot_device_details_screen.dart';
 // import 'package:pmsn20252/screens/home_screen.dart';
 import 'package:pmsn20252/screens/login_screen.dart';
 import 'package:pmsn20252/utils/theme_app.dart';

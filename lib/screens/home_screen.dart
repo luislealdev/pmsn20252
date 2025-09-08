@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_floating_bottom_bar/flutter_floating_bottom_bar.dart';
 import 'package:pmsn20252/utils/value_listener.dart';
 import 'package:pmsn20252/widgets/attribute_widget.dart';
+import 'package:pmsn20252/screens/iot_device_details_screen.dart';
 import 'dart:math';
 
 class HomeScreen extends StatefulWidget {
@@ -132,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 _buildPageContent(controller, 0, "Inicio", Icons.home),
                 _buildPageContent(controller, 1, "Buscar", Icons.search),
-                _buildPageContent(controller, 2, "Agregar", Icons.add),
+                _buildIoTDevicesPage(controller), // Página IoT para dispositivos del hogar
                 _buildFavoritesPage(
                   controller,
                 ), // Página especial para Favoritos
@@ -203,6 +204,312 @@ class _HomeScreenState extends State<HomeScreen>
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  // Página especial para dispositivos IoT del hogar
+  Widget _buildIoTDevicesPage(ScrollController controller) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: isDarkMode ? [
+            colors[2].withOpacity(0.2),
+            colors[2].withOpacity(0.1),
+            Colors.grey[900]!.withOpacity(0.8)
+          ] : [
+            colors[2].withOpacity(0.3),
+            colors[2].withOpacity(0.1),
+            Colors.white.withOpacity(0.05)
+          ],
+          stops: [0.0, 0.6, 1.0],
+        ),
+      ),
+      child: ListView(
+        controller: controller,
+        padding: EdgeInsets.all(16),
+        children: [
+          // Encabezado
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 20),
+            child: Column(
+              children: [
+                Icon(Icons.home_outlined, size: 60, color: colors[2]),
+                SizedBox(height: 10),
+                Text(
+                  'Casa Inteligente',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: colors[2],
+                  ),
+                ),
+                Text(
+                  'Controla tus dispositivos IoT',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: isDarkMode ? Colors.grey[400] : Colors.grey[600],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Contenedor centrado para las tarjetas
+          Center(
+            child: Container(
+              constraints: BoxConstraints(maxWidth: 400), // Ancho máximo para centrar
+              child: Column(
+                children: [
+                  // Dispositivo 1: Termostato
+                  _buildIoTDeviceCard(
+                    title: 'Termostato Inteligente',
+                    subtitle: 'Control de Temperatura',
+                    value: '24°C',
+                    progress: 78,
+                    icon: Icons.thermostat,
+                    color: Colors.orange,
+                    isActive: true,
+                    onDetailsPressed: () => _navigateToDeviceDetails(
+                      'Termostato Inteligente',
+                      'Sistema de Climatización',
+                      Icons.thermostat,
+                      Colors.orange,
+                      '24°C',
+                    ),
+                  ),
+
+                  SizedBox(height: 20),
+
+                  // Dispositivo 2: Iluminación
+                  _buildIoTDeviceCard(
+                    title: 'Sistema de Iluminación',
+                    subtitle: 'Control de Luces',
+                    value: '85%',
+                    progress: 85,
+                    icon: Icons.lightbulb,
+                    color: Colors.amber,
+                    isActive: true,
+                    onDetailsPressed: () => _navigateToDeviceDetails(
+                      'Sistema de Iluminación',
+                      'Control de Luces Inteligentes',
+                      Icons.lightbulb,
+                      Colors.amber,
+                      '85% Intensidad',
+                    ),
+                  ),
+
+                  SizedBox(height: 20),
+
+                  // Dispositivo 3: Seguridad
+                  _buildIoTDeviceCard(
+                    title: 'Sistema de Seguridad',
+                    subtitle: 'Alarma y Monitoreo',
+                    value: 'ACTIVO',
+                    progress: 95,
+                    icon: Icons.security,
+                    color: Colors.red,
+                    isActive: true,
+                    onDetailsPressed: () => _navigateToDeviceDetails(
+                      'Sistema de Seguridad',
+                      'Alarma y Cámaras de Seguridad',
+                      Icons.security,
+                      Colors.red,
+                      'Estado Activo',
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
+          SizedBox(height: 100), // Espacio para el bottom bar
+        ],
+      ),
+    );
+  }
+
+  Widget _buildIoTDeviceCard({
+    required String title,
+    required String subtitle,
+    required String value,
+    required double progress,
+    required IconData icon,
+    required Color color,
+    required bool isActive,
+    required VoidCallback onDetailsPressed,
+  }) {
+    final isDarkMode = Theme.of(context).brightness == Brightness.dark;
+    final titleColor = isDarkMode ? Colors.white : Colors.grey[800];
+    final subtitleColor = isDarkMode ? Colors.grey[300] : Colors.grey[600];
+    
+    return Transform(
+      alignment: FractionalOffset.center,
+      transform: Matrix4.identity()
+        ..setEntry(3, 2, 0.01)
+        ..rotateY(2 * pi / 180),
+      child: Container(
+        height: 180,
+        margin: EdgeInsets.symmetric(vertical: 8),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: isDarkMode ? [
+              color.withOpacity(0.2),
+              color.withOpacity(0.1),
+              Colors.grey[800]!.withOpacity(0.3),
+            ] : [
+              color.withOpacity(0.1),
+              color.withOpacity(0.05),
+              Colors.white.withOpacity(0.1),
+            ],
+          ),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.3), width: 1),
+          boxShadow: [
+            BoxShadow(
+              color: color.withOpacity(0.2),
+              spreadRadius: 2,
+              blurRadius: 10,
+              offset: Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(20),
+          child: Row(
+            children: [
+              // Lado izquierdo - Icono principal
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [color.withOpacity(0.8), color.withOpacity(0.5)],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withOpacity(0.4),
+                      spreadRadius: 2,
+                      blurRadius: 8,
+                      offset: Offset(0, 3),
+                    ),
+                  ],
+                ),
+                child: Icon(icon, color: Colors.white, size: 35),
+              ),
+
+              SizedBox(width: 20),
+
+              // Centro - Información
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: titleColor,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: subtitleColor,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      value,
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Switch(
+                          value: isActive,
+                          onChanged: (bool newValue) {
+                            setState(() {
+                              // Aquí puedes manejar el cambio de estado
+                            });
+                          },
+                          activeColor: color,
+                          activeTrackColor: color.withOpacity(0.3),
+                          inactiveThumbColor: isDarkMode ? Colors.grey[400] : Colors.grey,
+                          inactiveTrackColor: isDarkMode ? Colors.grey[700] : Colors.grey.withOpacity(0.3),
+                        ),
+                        SizedBox(width: 10),
+                        ElevatedButton(
+                          onPressed: onDetailsPressed,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: color,
+                            foregroundColor: Colors.white,
+                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            elevation: 3,
+                          ),
+                          child: Text(
+                            'Ver más',
+                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              // Lado derecho - Indicador de progreso
+              Container(
+                width: 60,
+                child: AttributeWidget(
+                  progress: progress,
+                  size: 60,
+                  child: Text(
+                    '${progress.toInt()}%',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 10,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _navigateToDeviceDetails(String name, String type, IconData icon, Color color, String value) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => IoTDeviceDetailsScreen(
+          deviceName: name,
+          deviceType: type,
+          deviceIcon: icon,
+          deviceColor: color,
+          deviceValue: value,
         ),
       ),
     );
@@ -333,7 +640,7 @@ class _HomeScreenState extends State<HomeScreen>
                           height: 32,
                           child: OutlinedButton(
                             onPressed: () {
-                              
+
                             },
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.white,
