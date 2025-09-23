@@ -58,8 +58,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       // endDrawer: Drawer(),
       body: Container(
-        height:
-            MediaQuery.of(context).size.height,
+        height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -154,7 +153,29 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                     ),
+                    SizedBox(height: 20),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/register');
+                      },
+                      child: Text(
+                        "¿No tienes una cuenta? Regístrate",
+                        style: TextStyle(
+                          color: Colors.blue[600],
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 10),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pushNamed(context, '/flora');
+                      },
+                      child: Text(
+                        "Ingresa a Flora",
+                        style: TextStyle(color: Colors.green),
+                      ),
+                    ),
                   ],
                 ),
               ),
