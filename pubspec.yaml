@@ -69,6 +69,7 @@ flutter:
     - assets/bg.jpg
     - assets/loading.json
     - assets/flora/flora_logo.png
+    - assets/icon_mandalor.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -63,6 +63,26 @@ class _HomeScreenState extends State<HomeScreen>
     final Color unselectedIconColor = Colors.grey[600]!;
 
     return Scaffold(
+      drawer: Drawer(
+        child: ListView(
+          children: [
+            const UserAccountsDrawerHeader(
+              accountName: Text('Luis Leal'),
+              accountEmail: Text('luisrrleal@gmail.com'),
+              currentAccountPicture: CircleAvatar(
+                backgroundImage: NetworkImage('https://i.pravatar.cc/300'),
+              ),
+            ),
+            ListTile(
+              leading: Image.asset('assets/icon_mandalor.png'),
+              title: Text('List Movies'),
+              subtitle: Text('Database Movies'),
+              trailing: Icon(Icons.chevron_right),
+              onTap: () => Navigator.pushNamed(context, "/listdb"),
+            ),
+          ],
+        ),
+      ),
       appBar: AppBar(
         title: const Text('GoogleApp'),
         backgroundColor: colors[currentPage],
@@ -133,7 +153,9 @@ class _HomeScreenState extends State<HomeScreen>
               children: [
                 _buildPageContent(controller, 0, "Inicio", Icons.home),
                 _buildPageContent(controller, 1, "Buscar", Icons.search),
-                _buildIoTDevicesPage(controller), // Página IoT para dispositivos del hogar
+                _buildIoTDevicesPage(
+                  controller,
+                ), // Página IoT para dispositivos del hogar
                 _buildFavoritesPage(
                   controller,
                 ), // Página especial para Favoritos
@@ -212,21 +234,24 @@ class _HomeScreenState extends State<HomeScreen>
   // Página especial para dispositivos IoT del hogar
   Widget _buildIoTDevicesPage(ScrollController controller) {
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
-          colors: isDarkMode ? [
-            colors[2].withOpacity(0.2),
-            colors[2].withOpacity(0.1),
-            Colors.grey[900]!.withOpacity(0.8)
-          ] : [
-            colors[2].withOpacity(0.3),
-            colors[2].withOpacity(0.1),
-            Colors.white.withOpacity(0.05)
-          ],
+          colors:
+              isDarkMode
+                  ? [
+                    colors[2].withOpacity(0.2),
+                    colors[2].withOpacity(0.1),
+                    Colors.grey[900]!.withOpacity(0.8),
+                  ]
+                  : [
+                    colors[2].withOpacity(0.3),
+                    colors[2].withOpacity(0.1),
+                    Colors.white.withOpacity(0.05),
+                  ],
           stops: [0.0, 0.6, 1.0],
         ),
       ),
@@ -263,7 +288,9 @@ class _HomeScreenState extends State<HomeScreen>
           // Contenedor centrado para las tarjetas
           Center(
             child: Container(
-              constraints: BoxConstraints(maxWidth: 400), // Ancho máximo para centrar
+              constraints: BoxConstraints(
+                maxWidth: 400,
+              ), // Ancho máximo para centrar
               child: Column(
                 children: [
                   // Dispositivo 1: Termostato
@@ -275,13 +302,14 @@ class _HomeScreenState extends State<HomeScreen>
                     icon: Icons.thermostat,
                     color: Colors.orange,
                     isActive: true,
-                    onDetailsPressed: () => _navigateToDeviceDetails(
-                      'Termostato Inteligente',
-                      'Sistema de Climatización',
-                      Icons.thermostat,
-                      Colors.orange,
-                      '24°C',
-                    ),
+                    onDetailsPressed:
+                        () => _navigateToDeviceDetails(
+                          'Termostato Inteligente',
+                          'Sistema de Climatización',
+                          Icons.thermostat,
+                          Colors.orange,
+                          '24°C',
+                        ),
                   ),
 
                   SizedBox(height: 20),
@@ -295,13 +323,14 @@ class _HomeScreenState extends State<HomeScreen>
                     icon: Icons.lightbulb,
                     color: Colors.amber,
                     isActive: true,
-                    onDetailsPressed: () => _navigateToDeviceDetails(
-                      'Sistema de Iluminación',
-                      'Control de Luces Inteligentes',
-                      Icons.lightbulb,
-                      Colors.amber,
-                      '85% Intensidad',
-                    ),
+                    onDetailsPressed:
+                        () => _navigateToDeviceDetails(
+                          'Sistema de Iluminación',
+                          'Control de Luces Inteligentes',
+                          Icons.lightbulb,
+                          Colors.amber,
+                          '85% Intensidad',
+                        ),
                   ),
 
                   SizedBox(height: 20),
@@ -315,13 +344,14 @@ class _HomeScreenState extends State<HomeScreen>
                     icon: Icons.security,
                     color: Colors.red,
                     isActive: true,
-                    onDetailsPressed: () => _navigateToDeviceDetails(
-                      'Sistema de Seguridad',
-                      'Alarma y Cámaras de Seguridad',
-                      Icons.security,
-                      Colors.red,
-                      'Estado Activo',
-                    ),
+                    onDetailsPressed:
+                        () => _navigateToDeviceDetails(
+                          'Sistema de Seguridad',
+                          'Alarma y Cámaras de Seguridad',
+                          Icons.security,
+                          Colors.red,
+                          'Estado Activo',
+                        ),
                   ),
                 ],
               ),
@@ -347,12 +377,13 @@ class _HomeScreenState extends State<HomeScreen>
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final titleColor = isDarkMode ? Colors.white : Colors.grey[800];
     final subtitleColor = isDarkMode ? Colors.grey[300] : Colors.grey[600];
-    
+
     return Transform(
       alignment: FractionalOffset.center,
-      transform: Matrix4.identity()
-        ..setEntry(3, 2, 0.01)
-        ..rotateY(2 * pi / 180),
+      transform:
+          Matrix4.identity()
+            ..setEntry(3, 2, 0.01)
+            ..rotateY(2 * pi / 180),
       child: Container(
         height: 180,
         margin: EdgeInsets.symmetric(vertical: 8),
@@ -360,15 +391,18 @@ class _HomeScreenState extends State<HomeScreen>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: isDarkMode ? [
-              color.withOpacity(0.2),
-              color.withOpacity(0.1),
-              Colors.grey[800]!.withOpacity(0.3),
-            ] : [
-              color.withOpacity(0.1),
-              color.withOpacity(0.05),
-              Colors.white.withOpacity(0.1),
-            ],
+            colors:
+                isDarkMode
+                    ? [
+                      color.withOpacity(0.2),
+                      color.withOpacity(0.1),
+                      Colors.grey[800]!.withOpacity(0.3),
+                    ]
+                    : [
+                      color.withOpacity(0.1),
+                      color.withOpacity(0.05),
+                      Colors.white.withOpacity(0.1),
+                    ],
           ),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: color.withOpacity(0.3), width: 1),
@@ -425,10 +459,7 @@ class _HomeScreenState extends State<HomeScreen>
                     SizedBox(height: 4),
                     Text(
                       subtitle,
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: subtitleColor,
-                      ),
+                      style: TextStyle(fontSize: 12, color: subtitleColor),
                     ),
                     SizedBox(height: 8),
                     Text(
@@ -451,8 +482,12 @@ class _HomeScreenState extends State<HomeScreen>
                           },
                           activeColor: color,
                           activeTrackColor: color.withOpacity(0.3),
-                          inactiveThumbColor: isDarkMode ? Colors.grey[400] : Colors.grey,
-                          inactiveTrackColor: isDarkMode ? Colors.grey[700] : Colors.grey.withOpacity(0.3),
+                          inactiveThumbColor:
+                              isDarkMode ? Colors.grey[400] : Colors.grey,
+                          inactiveTrackColor:
+                              isDarkMode
+                                  ? Colors.grey[700]
+                                  : Colors.grey.withOpacity(0.3),
                         ),
                         SizedBox(width: 10),
                         ElevatedButton(
@@ -460,7 +495,10 @@ class _HomeScreenState extends State<HomeScreen>
                           style: ElevatedButton.styleFrom(
                             backgroundColor: color,
                             foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(20),
                             ),
@@ -468,7 +506,10 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           child: Text(
                             'Ver más',
-                            style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
                       ],
@@ -500,17 +541,24 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _navigateToDeviceDetails(String name, String type, IconData icon, Color color, String value) {
+  void _navigateToDeviceDetails(
+    String name,
+    String type,
+    IconData icon,
+    Color color,
+    String value,
+  ) {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => IoTDeviceDetailsScreen(
-          deviceName: name,
-          deviceType: type,
-          deviceIcon: icon,
-          deviceColor: color,
-          deviceValue: value,
-        ),
+        builder:
+            (context) => IoTDeviceDetailsScreen(
+              deviceName: name,
+              deviceType: type,
+              deviceIcon: icon,
+              deviceColor: color,
+              deviceValue: value,
+            ),
       ),
     );
   }
@@ -639,9 +687,7 @@ class _HomeScreenState extends State<HomeScreen>
                         SizedBox(
                           height: 32,
                           child: OutlinedButton(
-                            onPressed: () {
-
-                            },
+                            onPressed: () {},
                             style: OutlinedButton.styleFrom(
                               foregroundColor: Colors.white,
                               side: BorderSide(color: Colors.white, width: 1),
