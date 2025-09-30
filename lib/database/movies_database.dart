@@ -28,7 +28,7 @@ class MoviesDatabase {
     CREATE TABLE movie(
         id INTEGER PRIMARY KEY,
         name VARCHAR(50),
-        time CHAR(3)
+        time CHAR(3),
         released CHAR(10)
     )
 ''';
