@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
+import 'package:pmsn20252/firebase/fire_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -15,8 +16,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _confirmPasswordController = TextEditingController();
-  
+  final TextEditingController _confirmPasswordController =
+      TextEditingController();
+  FireAuth? auth;
+
+  @override
+  void initState() {
+    super.initState();
+    auth = FireAuth();
+  }
+
   File? _profileImage;
   bool _isLoading = false;
   bool _obscurePassword = true;
@@ -26,12 +35,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       final ImagePicker picker = ImagePicker();
       final XFile? image = await picker.pickImage(
-        source: source, 
-        maxWidth: 300, 
+        source: source,
+        maxWidth: 300,
         maxHeight: 300,
-        imageQuality: 90
+        imageQuality: 90,
       );
-      
+
       if (image != null) {
         setState(() {
           _profileImage = File(image.path);
@@ -39,7 +48,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error al seleccionar la imagen: $e'))
+        SnackBar(content: Text('Error al seleccionar la imagen: $e')),
       );
     }
   }
@@ -47,36 +56,37 @@ class _RegisterScreenState extends State<RegisterScreen> {
   void _showImageSourceDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Seleccionar imagen'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: Icon(Icons.camera_alt),
-              title: Text('Tomar foto'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.camera);
-              },
+      builder:
+          (context) => AlertDialog(
+            title: Text('Seleccionar imagen'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: Icon(Icons.camera_alt),
+                  title: Text('Tomar foto'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(Icons.photo_library),
+                  title: Text('Seleccionar de galería'),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+              ],
             ),
-            ListTile(
-              leading: Icon(Icons.photo_library),
-              title: Text('Seleccionar de galería'),
-              onTap: () {
-                Navigator.pop(context);
-                _pickImage(ImageSource.gallery);
-              },
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancelar'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancelar'),
+              ),
+            ],
           ),
-        ],
-      ),
     );
   }
 
@@ -86,20 +96,45 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _isLoading = true;
       });
 
-      // Simulación de registro
-      await Future.delayed(Duration(seconds: 2));
-      
-      // Aquí puedes implementar la lógica de registro real
-      
+      // Register with Firebase Auth
+      var user = await auth!.registerWithEmailAndPassword(
+        _emailController.text,
+        _passwordController.text,
+      );
+
+      print(user);
+
       setState(() {
         _isLoading = false;
       });
-      
+
+      // if (user == null) {
+      //   ScaffoldMessenger.of(context).showSnackBar(
+      //     SnackBar(
+      //       content: Text(
+      //         'Error en el registro. Asegúrate de que el correo no esté ya en uso y que la contraseña tenga al menos 6 caracteres.',
+      //       ),
+      //     ),
+      //   );
+      //   return;
+      // }
+
+      if (user!.uid == "") {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Error en el registro. Asegúrate de que el correo no esté ya en uso y que la contraseña tenga al menos 6 caracteres.',
+            ),
+          ),
+        );
+        return;
+      }
+
       // Mostrar mensaje de éxito
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('¡Registro exitoso!'))
-      );
-      
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('¡Registro exitoso!')));
+
       // Navegar a la pantalla de login
       Navigator.pushReplacementNamed(context, '/login');
     }
@@ -139,7 +174,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
             ),
-            
+
             // Formulario
             Positioned(
               top: MediaQuery.of(context).size.height * 0.18,
@@ -176,20 +211,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 decoration: BoxDecoration(
                                   color: Colors.grey[200],
                                   shape: BoxShape.circle,
-                                  image: _profileImage != null
-                                      ? DecorationImage(
-                                          image: FileImage(_profileImage!),
-                                          fit: BoxFit.cover,
-                                        )
-                                      : null,
+                                  image:
+                                      _profileImage != null
+                                          ? DecorationImage(
+                                            image: FileImage(_profileImage!),
+                                            fit: BoxFit.cover,
+                                          )
+                                          : null,
                                 ),
-                                child: _profileImage == null
-                                    ? Icon(
-                                        Icons.person,
-                                        size: 80,
-                                        color: Colors.grey[400],
-                                      )
-                                    : null,
+                                child:
+                                    _profileImage == null
+                                        ? Icon(
+                                          Icons.person,
+                                          size: 80,
+                                          color: Colors.grey[400],
+                                        )
+                                        : null,
                               ),
                               Positioned(
                                 bottom: 0,
@@ -211,13 +248,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         SizedBox(height: 25),
-                        
+
                         // Nombre completo
                         TextFormField(
                           controller: _nameController,
                           decoration: InputDecoration(
                             labelText: 'Nombre completo',
-                            prefixIcon: Icon(Icons.person_outline, color: Colors.grey[600]),
+                            prefixIcon: Icon(
+                              Icons.person_outline,
+                              color: Colors.grey[600],
+                            ),
                             filled: true,
                             fillColor: Colors.grey[50],
                             border: OutlineInputBorder(
@@ -226,9 +266,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
+                              borderSide: BorderSide(
+                                color: Colors.blue[600]!,
+                                width: 2,
+                              ),
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
                             errorStyle: TextStyle(height: 0.8),
                           ),
                           validator: (value) {
@@ -239,14 +285,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         SizedBox(height: 20),
-                        
+
                         // Email
                         TextFormField(
                           controller: _emailController,
                           keyboardType: TextInputType.emailAddress,
                           decoration: InputDecoration(
                             labelText: 'Correo electrónico',
-                            prefixIcon: Icon(Icons.email_outlined, color: Colors.grey[600]),
+                            prefixIcon: Icon(
+                              Icons.email_outlined,
+                              color: Colors.grey[600],
+                            ),
                             filled: true,
                             fillColor: Colors.grey[50],
                             border: OutlineInputBorder(
@@ -255,9 +304,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
+                              borderSide: BorderSide(
+                                color: Colors.blue[600]!,
+                                width: 2,
+                              ),
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
                             errorStyle: TextStyle(height: 0.8),
                           ),
                           validator: (value) {
@@ -271,17 +326,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         SizedBox(height: 20),
-                        
+
                         // Contraseña
                         TextFormField(
                           controller: _passwordController,
                           obscureText: _obscurePassword,
                           decoration: InputDecoration(
                             labelText: 'Contraseña',
-                            prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[600]),
+                            prefixIcon: Icon(
+                              Icons.lock_outline,
+                              color: Colors.grey[600],
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                _obscurePassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 color: Colors.grey[600],
                               ),
                               onPressed: () {
@@ -298,9 +358,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
+                              borderSide: BorderSide(
+                                color: Colors.blue[600]!,
+                                width: 2,
+                              ),
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
                             errorStyle: TextStyle(height: 0.8),
                           ),
                           validator: (value) {
@@ -314,22 +380,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         SizedBox(height: 20),
-                        
+
                         // Confirmar contraseña
                         TextFormField(
                           controller: _confirmPasswordController,
                           obscureText: _obscureConfirmPassword,
                           decoration: InputDecoration(
                             labelText: 'Confirmar contraseña',
-                            prefixIcon: Icon(Icons.lock_outline, color: Colors.grey[600]),
+                            prefixIcon: Icon(
+                              Icons.lock_outline,
+                              color: Colors.grey[600],
+                            ),
                             suffixIcon: IconButton(
                               icon: Icon(
-                                _obscureConfirmPassword ? Icons.visibility_off : Icons.visibility,
+                                _obscureConfirmPassword
+                                    ? Icons.visibility_off
+                                    : Icons.visibility,
                                 color: Colors.grey[600],
                               ),
                               onPressed: () {
                                 setState(() {
-                                  _obscureConfirmPassword = !_obscureConfirmPassword;
+                                  _obscureConfirmPassword =
+                                      !_obscureConfirmPassword;
                                 });
                               },
                             ),
@@ -341,9 +413,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: BorderSide(color: Colors.blue[600]!, width: 2),
+                              borderSide: BorderSide(
+                                color: Colors.blue[600]!,
+                                width: 2,
+                              ),
                             ),
-                            contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                            contentPadding: EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 16,
+                            ),
                             errorStyle: TextStyle(height: 0.8),
                           ),
                           validator: (value) {
@@ -357,7 +435,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           },
                         ),
                         SizedBox(height: 30),
-                        
+
                         // Botón de registro
                         SizedBox(
                           width: double.infinity,
@@ -390,7 +468,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           ),
                         ),
                         SizedBox(height: 20),
-                        
+
                         // Link para ir a login
                         TextButton(
                           onPressed: () {
@@ -410,7 +488,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
               ),
             ),
-            
+
             // Indicador de carga
             if (_isLoading)
               Positioned.fill(

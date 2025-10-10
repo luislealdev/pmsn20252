@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pmsn20252/database/movies_database.dart';
+import 'package:pmsn20252/models/movie_dto.dart';
 
 class AddMovieScreen extends StatefulWidget {
   const AddMovieScreen({super.key});
@@ -23,6 +24,8 @@ class _AddMovieScreenState extends State<AddMovieScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final objM = ModalRoute.of(context)!.settings.arguments as MovieDTO;
+
     conRelease.text = selectedDate.toString();
 
     final txtTitle = TextFormField(

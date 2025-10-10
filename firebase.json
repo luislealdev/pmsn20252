@@ -1,0 +1,31 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "moviles-sistemas-2025-2",
+          "appId": "1:499042276781:android:6564f731c0874abe9dbd24",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "moviles-sistemas-2025-2",
+          "appId": "1:499042276781:ios:8bdb9a3c0f5031c29dbd24",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "moviles-sistemas-2025-2",
+          "configurations": {
+            "android": "1:499042276781:android:6564f731c0874abe9dbd24",
+            "ios": "1:499042276781:ios:8bdb9a3c0f5031c29dbd24",
+            "web": "1:499042276781:web:466e3400736e79179dbd24"
+          }
+        }
+      }
+    }
+  }
+}

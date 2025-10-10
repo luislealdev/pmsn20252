@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "499042276781",
+    "project_id": "moviles-sistemas-2025-2",
+    "storage_bucket": "moviles-sistemas-2025-2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:499042276781:android:6564f731c0874abe9dbd24",
+        "android_client_info": {
+          "package_name": "com.example.pmsn20252"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAHVtAZA7fGFIUh49_5FLzmBzjMt8jWxfQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
