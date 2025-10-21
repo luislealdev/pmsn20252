@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:email_validator/email_validator.dart';
@@ -96,48 +97,153 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _isLoading = true;
       });
 
-      // Register with Firebase Auth
-      var user = await auth!.registerWithEmailAndPassword(
-        _emailController.text,
-        _passwordController.text,
-      );
-
-      print(user);
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      // if (user == null) {
-      //   ScaffoldMessenger.of(context).showSnackBar(
-      //     SnackBar(
-      //       content: Text(
-      //         'Error en el registro. Asegúrate de que el correo no esté ya en uso y que la contraseña tenga al menos 6 caracteres.',
-      //       ),
-      //     ),
-      //   );
-      //   return;
-      // }
-
-      if (user!.uid == "") {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              'Error en el registro. Asegúrate de que el correo no esté ya en uso y que la contraseña tenga al menos 6 caracteres.',
-            ),
-          ),
+      try {
+        print('Iniciando proceso de registro...');
+        
+        // Register with Firebase Auth
+        var user = await auth!.registerWithEmailAndPassword(
+          _emailController.text.trim(),
+          _passwordController.text,
         );
-        return;
+
+        print(user);
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Verificar si el registro fue exitoso
+        if (user != null && user.uid.isNotEmpty) {
+          print('Usuario registrado exitosamente: ${user.uid}');
+          
+          // Registro exitoso
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.white),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text('¡Registro exitoso! Bienvenido ${_nameController.text}'),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.green[600],
+              behavior: SnackBarBehavior.floating,
+              duration: Duration(seconds: 3),
+            ),
+          );
+
+          // Navegar a la pantalla de login
+          Navigator.pushReplacementNamed(context, '/login');
+        } else {
+          // Si user es null o uid está vacío, mostrar error genérico
+          print('Usuario es null o UID vacío');
+          _showErrorMessage('Error en el registro. Por favor intenta nuevamente.');
+        }
+      } catch (e) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        print('Error capturado en registro: $e');
+        print('Tipo de error: ${e.runtimeType}');
+
+        // Verificar si a pesar del error, el usuario se registró exitosamente
+        try {
+          await Future.delayed(Duration(milliseconds: 500));
+          if (auth != null && FirebaseAuth.instance.currentUser != null) {
+            var currentUser = FirebaseAuth.instance.currentUser!;
+            if (currentUser.email?.toLowerCase() == _emailController.text.trim().toLowerCase()) {
+              print('Registro exitoso detectado a pesar del error: ${currentUser.uid}');
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.white),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text('¡Registro exitoso! Bienvenido ${_nameController.text}'),
+                      ),
+                    ],
+                  ),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                  duration: Duration(seconds: 3),
+                ),
+              );
+              
+              Navigator.pushReplacementNamed(context, '/login');
+              return;
+            }
+          }
+        } catch (checkError) {
+          print('Error al verificar usuario después del error: $checkError');
+        }
+
+        // Manejar errores específicos
+        String errorMessage;
+        
+        if (e is FirebaseAuthException) {
+          errorMessage = _getFirebaseErrorMessage(e.code);
+        } else {
+          // Para cualquier otro tipo de error (TypeError, PlatformException, etc.)
+          errorMessage = 'Error durante el registro. Por favor intenta nuevamente.';
+        }
+        
+        _showErrorMessage(errorMessage);
       }
-
-      // Mostrar mensaje de éxito
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('¡Registro exitoso!')));
-
-      // Navegar a la pantalla de login
-      Navigator.pushReplacementNamed(context, '/login');
     }
+  }
+
+  String _getFirebaseErrorMessage(String errorCode) {
+    switch (errorCode) {
+      case 'email-already-in-use':
+        return '❌ Este correo electrónico ya está registrado.\nPor favor usa otro correo o inicia sesión.';
+      case 'weak-password':
+        return '🔒 La contraseña es muy débil.\nDebe tener al menos 6 caracteres.';
+      case 'invalid-email':
+        return '📧 El formato del correo electrónico no es válido.\nVerifica que esté escrito correctamente.';
+      case 'network-request-failed':
+        return '🌐 Error de conexión.\nVerifica tu conexión a internet.';
+      case 'too-many-requests':
+        return '⏱️ Demasiados intentos fallidos.\nEspera un momento antes de intentar nuevamente.';
+      case 'operation-not-allowed':
+        return '🚫 El registro con email no está habilitado.\nContacta al administrador.';
+      case 'registration-failed':
+        return '⚠️ Error durante el registro.\nPor favor intenta nuevamente en unos momentos.';
+      case 'invalid-input':
+        return '⚠️ Por favor completa todos los campos correctamente.';
+      default:
+        return '⚠️ Error en el registro: $errorCode\nPor favor intenta nuevamente.';
+    }
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.white),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(message),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red[600],
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 5),
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
   }
 
   @override
@@ -493,15 +599,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
             if (_isLoading)
               Positioned.fill(
                 child: Container(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withOpacity(0.5),
                   child: Center(
                     child: Container(
-                      padding: EdgeInsets.all(20),
+                      padding: EdgeInsets.all(24),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
+                            color: Colors.black.withOpacity(0.2),
                             spreadRadius: 2,
                             blurRadius: 15,
                             offset: Offset(0, 8),
@@ -511,14 +618,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          CircularProgressIndicator(),
-                          SizedBox(height: 15),
+                          CircularProgressIndicator(
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.blue[600]!,
+                            ),
+                            strokeWidth: 3,
+                          ),
+                          SizedBox(height: 20),
                           Text(
-                            "Registrando usuario...",
+                            "Creando tu cuenta...",
                             style: TextStyle(
                               fontSize: 16,
                               color: Colors.grey[700],
-                              fontWeight: FontWeight.w500,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          SizedBox(height: 8),
+                          Text(
+                            "Por favor espera un momento",
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
                             ),
                           ),
                         ],

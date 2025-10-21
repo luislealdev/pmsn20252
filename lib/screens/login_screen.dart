@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import 'package:pmsn20252/firebase/fire_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -12,6 +14,144 @@ class _LoginScreenState extends State<LoginScreen> {
   TextEditingController conUser = TextEditingController();
   TextEditingController conPwd = TextEditingController();
   bool isValidating = false;
+  FireAuth? auth;
+
+  @override
+  void initState() {
+    super.initState();
+    auth = FireAuth();
+  }
+
+  void _login() async {
+    // Validar que los campos no estén vacíos
+    if (conUser.text.trim().isEmpty || conPwd.text.trim().isEmpty) {
+      _showErrorMessage('❌ Por favor completa todos los campos');
+      return;
+    }
+
+    // Validar formato de email básico
+    if (!conUser.text.contains('@') || !conUser.text.contains('.')) {
+      _showErrorMessage('📧 Por favor ingresa un correo electrónico válido');
+      return;
+    }
+
+    setState(() {
+      isValidating = true;
+    });
+
+    try {
+      // Intentar iniciar sesión con Firebase Auth
+      var user = await auth!.signInWithEmailAndPassword(
+        conUser.text.trim(),
+        conPwd.text,
+      );
+
+      setState(() {
+        isValidating = false;
+      });
+
+      if (user != null && user.uid.isNotEmpty) {
+        // Login exitoso
+        print('Login exitoso: ${user.uid}');
+        
+        _showSuccessMessage('¡Bienvenido de vuelta!');
+        
+        // Navegar a la pantalla principal
+        Navigator.pushReplacementNamed(context, '/home');
+      } else {
+        _showErrorMessage('Error al iniciar sesión. Intenta nuevamente.');
+      }
+    } catch (e) {
+      setState(() {
+        isValidating = false;
+      });
+
+      print('Error capturado en login: $e');
+      print('Tipo de error: ${e.runtimeType}');
+
+      // Manejar todos los tipos de error de manera uniforme
+      String errorMessage;
+      
+      if (e is FirebaseAuthException) {
+        errorMessage = _getFirebaseErrorMessage(e.code);
+      } else {
+        // Para cualquier otro tipo de error (PlatformException, TypeError, etc.)
+        errorMessage = '❌ Credenciales incorrectas.\nVerifica tu correo electrónico y contraseña.';
+      }
+      
+      _showErrorMessage(errorMessage);
+    }
+  }
+
+  String _getFirebaseErrorMessage(String errorCode) {
+    switch (errorCode) {
+      case 'user-not-found':
+        return '❌ No existe una cuenta con este correo electrónico.\n¿Quieres registrarte?';
+      case 'wrong-password':
+        return '🔒 Contraseña incorrecta.\nRevisa tu contraseña e intenta nuevamente.';
+      case 'invalid-email':
+        return '📧 El formato del correo electrónico no es válido.\nVerifica que esté escrito correctamente.';
+      case 'invalid-credential':
+        return '❌ Credenciales incorrectas.\nVerifica tu correo electrónico y contraseña.';
+      case 'user-disabled':
+        return '🚫 Esta cuenta ha sido deshabilitada.\nContacta al administrador.';
+      case 'too-many-requests':
+        return '⏱️ Demasiados intentos fallidos.\nEspera un momento antes de intentar nuevamente.';
+      case 'network-request-failed':
+        return '🌐 Error de conexión.\nVerifica tu conexión a internet.';
+      case 'invalid-input':
+        return '⚠️ Por favor completa todos los campos correctamente.';
+      case 'unknown-error':
+        return '⚠️ Error inesperado.\nPor favor intenta nuevamente.';
+      default:
+        return '⚠️ Error al iniciar sesión: $errorCode\nPor favor intenta nuevamente.';
+    }
+  }
+
+  void _showErrorMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.warning, color: Colors.white),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(message),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.red[600],
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'OK',
+          textColor: Colors.white,
+          onPressed: () {
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showSuccessMessage(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 8),
+            Expanded(
+              child: Text(message),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green[600],
+        behavior: SnackBarBehavior.floating,
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -119,14 +259,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       height: 50,
                       child: ElevatedButton(
                         onPressed: () {
-                          isValidating = true;
-                          setState(() {});
-                          Future.delayed(Duration(seconds: 3)).then(
-                            (value) => Navigator.pushReplacementNamed(
-                              context,
-                              '/home',
-                            ),
-                          );
+                          _login();
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.blue[600],

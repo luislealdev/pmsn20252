@@ -8,6 +8,7 @@ import 'package:pmsn20252/screens/home_screen.dart';
 import 'package:pmsn20252/screens/movies/add_movie_screen.dart';
 import 'package:pmsn20252/screens/login_screen.dart';
 import 'package:pmsn20252/screens/movies/list_movies_screen.dart';
+import 'package:pmsn20252/screens/songs/list_songs_screen.dart';
 import 'package:pmsn20252/screens/register_screen.dart';
 import 'package:pmsn20252/utils/theme_app.dart';
 import 'package:pmsn20252/utils/value_listener.dart';
@@ -44,6 +45,7 @@ class _MyAppState extends State<MyApp> {
             '/cart': (context) => const CartScreen(),
             "/add": (context) => const AddMovieScreen(),
             "/listdb": (context) => const ListMoviesScreen(),
+            "/songs": (context) => const ListSongsScreen(),
           },
           debugShowCheckedModeBanner: false,
           home: const LoginScreen(),

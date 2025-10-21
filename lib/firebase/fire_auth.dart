@@ -12,11 +12,12 @@ class FireAuth {
         email: email,
         password: password,
       );
-
-      result.user?.sendEmailVerification();
-
-      return result.user;
+      User? user = result.user;
+      user!
+          .sendEmailVerification(); //Se manda email para la verificacion de 2 pasos
+      return user;
     } catch (e) {
+      print(e.toString());
       return null;
     }
   }
@@ -30,15 +31,15 @@ class FireAuth {
         email: email,
         password: password,
       );
-
       User? user = result.user;
-
       if (user != null && !user.emailVerified) {
         await _auth.signOut();
-        return null;
+        throw FirebaseAuthException(
+          code: "Email-not-verified",
+          message: "El email no se verifico",
+        );
       }
-
-      return user;
+      return result.user;
     } catch (e) {
       return null;
     }
